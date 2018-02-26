@@ -1,4 +1,4 @@
-import os 
+import os
 #os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import numpy as np
 from keras.models import *
@@ -7,17 +7,25 @@ from keras.optimizers import *
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras import backend as keras
 from data import *
+from os.path import join
+import argparse
+
 
 class myUnet(object):
 
-	def __init__(self, img_rows = 512, img_cols = 512):
+	def __init__(self, train_img_path, train_label_path, test_path, npy_path, nb_epoch, img_rows=512, img_cols=512):
 
 		self.img_rows = img_rows
 		self.img_cols = img_cols
+                self.train_img_path = train_img_path
+                self.train_label_path = train_label_path
+                self.test_path = test_path
+                self.npy_path = npy_path
+                self.nb_epoch = nb_epoch
 
 	def load_data(self):
 
-		mydata = dataProcess(self.img_rows, self.img_cols)
+		mydata = dataProcess(self.img_rows, self.img_cols, self.train_img_path, self.train_label_path, self.test_path, self.npy_path)
 		imgs_train, imgs_mask_train = mydata.load_train_data()
 		imgs_test = mydata.load_test_data()
 		return imgs_train, imgs_mask_train, imgs_test
@@ -25,9 +33,9 @@ class myUnet(object):
 	def get_unet(self):
 
 		inputs = Input((self.img_rows, self.img_cols,1))
-		
+
 		'''
-		unet with crop(because padding = valid) 
+		unet with crop(because padding = valid)
 
 		conv1 = Conv2D(64, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(inputs)
 		print "conv1 shape:",conv1.shape
@@ -152,16 +160,19 @@ class myUnet(object):
 		print("loading data")
 		imgs_train, imgs_mask_train, imgs_test = self.load_data()
 		print("loading data done")
+                # print(imgs_train.shape, imgs_mask_train.shape, imgs_test.shape)
+                # return
 		model = self.get_unet()
 		print("got unet")
 
 		model_checkpoint = ModelCheckpoint('unet.hdf5', monitor='loss',verbose=1, save_best_only=True)
 		print('Fitting model...')
-		model.fit(imgs_train, imgs_mask_train, batch_size=4, nb_epoch=10, verbose=1,validation_split=0.2, shuffle=True, callbacks=[model_checkpoint])
+		# model.fit(imgs_train, imgs_mask_train, batch_size=4, nb_epoch=10, verbose=1,validation_split=0.2, shuffle=True, callbacks=[model_checkpoint])
+		model.fit(imgs_train, imgs_mask_train, batch_size=4, nb_epoch=self.nb_epoch, verbose=1,validation_split=0.2, shuffle=True)
 
-		print('predict test data')
-		imgs_mask_test = model.predict(imgs_test, batch_size=1, verbose=1)
-		np.save('../results/imgs_mask_test.npy', imgs_mask_test)
+		# print('predict test data')
+		# imgs_mask_test = model.predict(imgs_test, batch_size=1, verbose=1)
+		# np.save('../results/imgs_mask_test.npy', imgs_mask_test)
 
 	def save_img(self):
 
@@ -176,14 +187,18 @@ class myUnet(object):
 
 
 if __name__ == '__main__':
-	myunet = myUnet()
-	myunet.train()
-	myunet.save_img()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('data_path')
+    parser.add_argument('nb_epoch', type=int)
+    args = parser.parse_args()
+    data_path = args.data_path
+    nb_epoch = args.nb_epoch
 
-
-
-
-
-
-
-
+    train_path = join(data_path, 'deform')
+    test_path = join(data_path, 'test')
+    npy_path = join(data_path, 'npydata')
+    train_img_path = join(train_path, 'train')
+    train_label_path = join(train_path, 'label')
+    myunet = myUnet(train_img_path, train_label_path, test_path, npy_path, nb_epoch)
+    myunet.train()
+    # myunet.save_img()
