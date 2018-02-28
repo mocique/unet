@@ -1,5 +1,3 @@
-# import os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import numpy as np
 from keras.models import *
 from keras.layers import Input, merge, Conv2D, MaxPooling2D, UpSampling2D, Dropout, Cropping2D
@@ -12,6 +10,7 @@ import argparse
 from os import environ
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
+from os import system
 
 
 class myUnet(object):
@@ -220,3 +219,5 @@ if __name__ == '__main__':
     myunet = myUnet(train_img_path, train_label_path, test_path, npy_path, nb_epoch)
     myunet.train()
     # myunet.save_img()
+
+    system('mailx pvalue@126.com <<< "unet training is finishing."')
