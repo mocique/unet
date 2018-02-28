@@ -190,7 +190,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('data_path')
     parser.add_argument('nb_epoch', type=int)
-    parser.add_argument('--use_gpu', type=bool)
+    parser.add_argument('--use_gpu', type=bool, default=False)
     args = parser.parse_args()
     data_path = args.data_path
     nb_epoch = args.nb_epoch
