@@ -1,5 +1,5 @@
-import os
-#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import numpy as np
 from keras.models import *
 from keras.layers import Input, merge, Conv2D, MaxPooling2D, UpSampling2D, Dropout, Cropping2D
@@ -190,9 +190,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('data_path')
     parser.add_argument('nb_epoch', type=int)
+    parser.add_argument('--use_gpu', type=bool)
     args = parser.parse_args()
     data_path = args.data_path
     nb_epoch = args.nb_epoch
+    use_gpu = args.use_gpu
+
+    if (use_gpu):
+        config = tf.ConfigProto()
+        config.gpu_options.per_process_gpu_memory_fraction = 0.8
+        set_session(tf.Session(config=config))
 
     train_path = join(data_path, 'deform')
     test_path = join(data_path, 'test')
