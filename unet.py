@@ -10,7 +10,6 @@ import argparse
 from os import environ
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
-from os import system
 
 
 class myUnet(object):
@@ -194,13 +193,13 @@ if __name__ == '__main__':
     parser.add_argument('nb_epoch', type=int)
     parser.add_argument('--use_gpu', type=bool, default=False)
     parser.add_argument('--cuda_visible_devices', type=str, default='0')
-    parser.add_argument('--per_process_gpu_memory_fraction', type=float, default=0.3)
+    parser.add_argument('--memory_fraction', type=float, default=0.3)
     args = parser.parse_args()
     data_path = args.data_path
     nb_epoch = args.nb_epoch
     use_gpu = args.use_gpu
     cuda_visible_devices = args.cuda_visible_devices
-    per_process_gpu_memory_fraction = args.per_process_gpu_memory_fraction
+    per_process_gpu_memory_fraction = args.memory_fraction
 
 
     if (use_gpu):
@@ -219,5 +218,3 @@ if __name__ == '__main__':
     myunet = myUnet(train_img_path, train_label_path, test_path, npy_path, nb_epoch)
     myunet.train()
     # myunet.save_img()
-
-    system('mailx pvalue@126.com <<< "unet training is finishing."')
