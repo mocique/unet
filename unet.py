@@ -9,6 +9,9 @@ from keras import backend as keras
 from data import *
 from os.path import join
 import argparse
+from os import environ
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
 
 
 class myUnet(object):
@@ -191,15 +194,23 @@ if __name__ == '__main__':
     parser.add_argument('data_path')
     parser.add_argument('nb_epoch', type=int)
     parser.add_argument('--use_gpu', type=bool, default=False)
+    parser.add_argument('--cuda_visible_devices', type=int, default=0)
+    parser.add_argument('--per_gpu_memory_fraction', type=float, default=0.3)
     args = parser.parse_args()
     data_path = args.data_path
     nb_epoch = args.nb_epoch
     use_gpu = args.use_gpu
+    cuda_visible_devices = args.cuda_visible_devices
+    per_process_gpu_memory_fraction = args.per_process_gpu_memory_fraction
+
 
     if (use_gpu):
+        environ['CUDA_VISIBLE_DEVICES'] = cuda_visible_devices
         config = tf.ConfigProto()
-        config.gpu_options.per_process_gpu_memory_fraction = 0.8
+        config.gpu_options.per_process_gpu_memory_fraction = per_process_gpu_memory_fraction
         set_session(tf.Session(config=config))
+    else:
+        environ['CUDA_VISIBLE_DEVICES'] = 0
 
     train_path = join(data_path, 'deform')
     test_path = join(data_path, 'test')
