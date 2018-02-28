@@ -194,8 +194,8 @@ if __name__ == '__main__':
     parser.add_argument('data_path')
     parser.add_argument('nb_epoch', type=int)
     parser.add_argument('--use_gpu', type=bool, default=False)
-    parser.add_argument('--cuda_visible_devices', type=int, default=0)
-    parser.add_argument('--per_gpu_memory_fraction', type=float, default=0.3)
+    parser.add_argument('--cuda_visible_devices', type=str, default='0')
+    parser.add_argument('--per_process_gpu_memory_fraction', type=float, default=0.3)
     args = parser.parse_args()
     data_path = args.data_path
     nb_epoch = args.nb_epoch
@@ -210,7 +210,7 @@ if __name__ == '__main__':
         config.gpu_options.per_process_gpu_memory_fraction = per_process_gpu_memory_fraction
         set_session(tf.Session(config=config))
     else:
-        environ['CUDA_VISIBLE_DEVICES'] = 0
+        environ['CUDA_VISIBLE_DEVICES'] = '0'
 
     train_path = join(data_path, 'deform')
     test_path = join(data_path, 'test')
